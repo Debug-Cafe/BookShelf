@@ -1,14 +1,19 @@
 import BookListClient from "./BookListClient";
 import type { Book } from "@/types";
-import { supabase } from "@/lib/supabaseClient";
 
 async function fetchBooks(): Promise<Book[]> {
-  const { data, error } = await supabase.from("books").select("*").order("created_at", { ascending: false });
-  if (error) {
-    console.error("Erro ao buscar livros:", error.message);
-    return [];
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/books`, {
+      cache: 'no-store'
+    });
+    const result = await response.json();
+    if (result.success && result.data) {
+      return result.data;
+    }
+  } catch (error) {
+    console.error("Erro ao buscar livros:", error);
   }
-  return data || [];
+  return [];
 }
 
 export default async function BookList() {

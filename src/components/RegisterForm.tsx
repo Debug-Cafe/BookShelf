@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface RegisterFormProps {
   isDark: boolean;
@@ -28,6 +28,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function RegisterForm({ isDark, onSuccess }: RegisterFormProps) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
 
   const {
     register,
@@ -42,25 +43,12 @@ export default function RegisterForm({ isDark, onSuccess }: RegisterFormProps) {
     setIsLoading(true);
 
     try {
-      const { data: response, error: signUpError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            name: data.name,
-          },
-        },
-      });
-
-      if (signUpError) {
-        setError(signUpError.message);
-        return;
-      }
-
-      alert('Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro.');
+      // Simulação de registro (sem autenticação real)
+      await login(data.email, data.password);
+      alert('Conta criada com sucesso!');
       onSuccess();
-    } catch (err) {
-      setError('Ocorreu um erro inesperado. Tente novamente.');
+    } catch (err: any) {
+      setError(err.message || 'Ocorreu um erro inesperado. Tente novamente.');
     } finally {
       setIsLoading(false);
     }

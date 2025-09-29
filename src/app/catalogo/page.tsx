@@ -10,7 +10,6 @@ import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import HeroSection from "@/components/HeroSection"; 
 
 import type { Book } from "@/types";
-import { supabase } from "@/lib/supabaseClient";
 
 export default function CatalogoPage() {
   const [allBooks, setAllBooks] = useState<Book[]>([]);
@@ -20,95 +19,93 @@ export default function CatalogoPage() {
   const [bookToEdit, setBookToEdit] = useState<Book | null>(null);
   const [bookToDelete, setBookToDelete] = useState<Book | null>(null);
 
-  // Função para limpar campos undefined antes de enviar ao Supabase
-  function cleanObject<T extends Record<string, any>>(obj: T): Partial<T> {
-    const cleaned: Partial<T> = {};
-    for (const key in obj) {
-      if (obj[key] !== undefined) {
-        cleaned[key] = obj[key];
-      }
-    }
-    return cleaned;
-  }
-
-  // Função para carregar livros atualizados
   const fetchBooks = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("books")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (!error && data) setAllBooks(data as Book[]);
+    try {
+      const response = await fetch('/api/books');
+      const result = await response.json();
+      if (result.success && result.data) {
+        setAllBooks(result.data as Book[]);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar livros:', error);
+    }
     setLoading(false);
   };
 
-  // Buscar livros na montagem do componente
   useEffect(() => {
     fetchBooks();
   }, []);
 
-  // Abrir form de adicionar livro
   const handleShowAddForm = () => {
     setBookToEdit(null);
     setShowAddForm(true);
   };
 
-  // Abrir form de editar livro
   const handleEditBook = (book: Book) => {
     setBookToEdit(book);
     setShowAddForm(false);
   };
 
-  // Salvar livro (novo ou editado)
   const handleSaveBook = async (book: Book) => {
-    if (bookToEdit) {
-      // Atualizar no Supabase
-      const cleanedBook = cleanObject(book);
-      const { error } = await supabase
-        .from("books")
-        .update(cleanedBook)
-        .eq("id", book.id);
-      if (!error) {
-        await fetchBooks(); // Atualiza lista após edição
+    try {
+      if (bookToEdit) {
+        const response = await fetch(`/api/books/${book.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(book),
+        });
+        
+        if (response.ok) {
+          await fetchBooks();
+        }
+      } else {
+        const response = await fetch('/api/books', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(book),
+        });
+        
+        if (response.ok) {
+          await fetchBooks(); 
+        }
       }
-    } else {
-      // Inserir no Supabase
-      const cleanedBook = cleanObject(book);
-      const { data, error } = await supabase
-        .from("books")
-        .insert([cleanedBook])
-        .select();
-      if (!error && data) {
-        await fetchBooks(); // Atualiza lista após inserção
-      }
+    } catch (error) {
+      console.error('Erro ao salvar livro:', error);
     }
 
     setShowAddForm(false);
     setBookToEdit(null);
   };
 
-  // Cancelar forms
   const handleCancelForm = () => {
     setShowAddForm(false);
     setBookToEdit(null);
   };
 
-  // Preparar exclusão de livro
   const handleDeleteBook = (book: Book) => {
     setBookToDelete(book);
   };
 
-  // Confirmar exclusão e atualizar lista
   const handleConfirmDelete = async () => {
     if (!bookToDelete) return;
 
-    const { error } = await supabase
-      .from("books")
-      .delete()
-      .eq("id", bookToDelete.id);
-    if (!error) {
-      await fetchBooks(); // Atualiza lista após exclusão
+    try {
+      const response = await fetch(`/api/books/${bookToDelete.id}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        await fetchBooks(); 
+      }
+    } catch (error) {
+      console.error('Erro ao deletar livro:', error);
     }
+    
     setBookToDelete(null);
   };
 
@@ -116,18 +113,23 @@ export default function CatalogoPage() {
     setBookToDelete(null);
   };
 
-  // Avaliar livro
   const handleRateBook = async (book: Book, rating: number) => {
-    const updatedBook = { ...book, rating };
-    const { error } = await supabase
-      .from("books")
-      .update({ rating })
-      .eq("id", book.id);
+    try {
+      const response = await fetch(`/api/books/${book.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ rating }),
+      });
 
-    if (!error) {
-      setAllBooks(prev =>
-        prev.map(b => (b.id === book.id ? updatedBook : b))
-      );
+      if (response.ok) {
+        setAllBooks(prev =>
+          prev.map(b => (b.id === book.id ? { ...b, rating } : b))
+        );
+      }
+    } catch (error) {
+      console.error('Erro ao avaliar livro:', error);
     }
   };
 

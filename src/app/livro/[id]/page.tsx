@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
 import type { Book } from '@/types';
 
 export default function BookDetailPage() {
@@ -12,17 +11,18 @@ export default function BookDetailPage() {
 
   useEffect(() => {
     const fetchBook = async () => {
-      const { data, error } = await supabase
-        .from("books")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) {
-        console.error("Erro ao buscar livro:", error.message);
+      try {
+        const response = await fetch(`/api/books/${id}`);
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          setBook(result.data as Book);
+        } else {
+          setBook(null);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar livro:", error);
         setBook(null);
-      } else {
-        setBook(data as Book);
       }
 
       setLoading(false);
@@ -48,62 +48,84 @@ export default function BookDetailPage() {
       <div className="container mx-auto px-4 py-12 text-center" style={{ color: 'var(--text-primary)' }}>
         <p className="text-xl font-semibold">Livro não encontrado.</p>
         <a href="/catalogo" className="inline-block mt-6 text-sm hover:underline" style={{ color: 'var(--color-accent)' }}>
-          &larr; Voltar para o Catálogo
+          ← Voltar ao catálogo
         </a>
       </div>
     );
   }
 
-  // --- VISUALIZAÇÃO PRINCIPAL ---
+  // --- COMPONENTE PRINCIPAL (Ajustando as cores do texto) ---
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      <a 
-        href="/catalogo" 
-        className="text-sm hover:underline mb-4 inline-block" 
-        style={{ color: 'var(--text-primary)', opacity: 0.8 }} // Usando text-primary e ajustando opacidade
-      >
-        &larr; Voltar para o Catálogo
-      </a>
-
-      {/* CARTÃO DE DETALHES DO LIVRO: Aplicando as variáveis de tema e sombra */}
-      <div 
-        className="flex flex-col md:flex-row gap-10 p-6 rounded-xl" 
-        style={{
-          // Fundo do cartão: Usa a mesma cor de superfície do Hero/Cards
-          backgroundColor: 'var(--color-surface-hero)', 
-          // Cor do texto: Usa a cor principal de texto
-          color: 'var(--text-primary)',
-          // Aplica a sombra uniforme e adaptável ao tema
-          boxShadow: '0 0 20px 0 var(--color-shadow-hero)',
-        }}
-      >
-        <div className="md:w-1/3">
-          <img
-            src={book.cover || book.imageUrl || "/placeholder.jpg"}
-            alt={`Capa do livro ${book.title}`}
-            className="w-full h-auto rounded shadow-md"
-          />
-        </div>
-
-        <div className="md:w-2/3">
-          <h1 className="text-4xl font-bold mb-2">{book.title}</h1>
-          <p className="text-lg mb-4 opacity-80">por {book.author}</p>
-
-          <div className="text-sm mb-4 space-y-1">
-            {book.genre && <p><strong>Gênero:</strong> {book.genre}</p>}
-            {book.year && <p><strong>Ano:</strong> {book.year}</p>}
-            {book.pages && <p><strong>Páginas:</strong> {book.pages}</p>}
-            <p><strong>Avaliação:</strong> {book.rating ?? 0} / 5</p>
-          </div>
-
-          {book.synopsis && (
-            <div className="mt-6">
-              <h2 className="text-xl font-semibold mb-2">Sinopse</h2>
-              <p>{book.synopsis}</p>
+    <main className="mx-auto flex-1 bg-[var(--main-background)] min-h-screen pb-32">
+      <div className="px-6 lg:px-20 py-12">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Coluna da Capa */}
+            <div className="md:col-span-1">
+              <div className="sticky top-8">
+                <img
+                  src={book.cover || '/placeholder-book.jpg'}
+                  alt={`Capa do livro ${book.title}`}
+                  className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
+                />
+              </div>
             </div>
-          )}
+
+            {/* Coluna das Informações */}
+            <div className="md:col-span-2 space-y-6">
+              <div>
+                <h1 className="text-4xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                  {book.title}
+                </h1>
+                <p className="text-xl mb-4" style={{ color: 'var(--text-secondary)' }}>
+                  por {book.author}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Gênero:</span>
+                  <span className="ml-2" style={{ color: 'var(--text-secondary)' }}>{book.genre}</span>
+                </div>
+                <div>
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Ano:</span>
+                  <span className="ml-2" style={{ color: 'var(--text-secondary)' }}>{book.year}</span>
+                </div>
+                <div>
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Páginas:</span>
+                  <span className="ml-2" style={{ color: 'var(--text-secondary)' }}>{book.pages}</span>
+                </div>
+                <div>
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Status:</span>
+                  <span className="ml-2" style={{ color: 'var(--text-secondary)' }}>{book.status}</span>
+                </div>
+              </div>
+
+              {book.synopsis && (
+                <div>
+                  <h2 className="text-2xl font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
+                    Sinopse
+                  </h2>
+                  <p className="leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                    {book.synopsis}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                <a
+                  href="/catalogo"
+                  className="text-sm hover:underline"
+                  style={{ color: 'var(--color-accent)' }}
+                >
+                  ← Voltar ao catálogo
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -1,8 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
 
 interface User {
   id: string;
@@ -22,63 +21,25 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // Verifica sessão ao carregar
-  useEffect(() => {
-    const getSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
-
-      if (data.session?.user) {
-        const { id, email, user_metadata } = data.session.user;
-        const name = user_metadata?.name || 'Usuário';
-
-        setUser({ id, name, email });
-      } else {
-        setUser(null);
-      }
-
-      setIsLoading(false);
-    };
-
-    getSession();
-
-    // Listener para login/logout
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        const { id, email, user_metadata } = session.user;
-        const name = user_metadata?.name || 'Usuário';
-        setUser({ id, name, email });
-      } else {
-        setUser(null);
-      }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
-
   const login = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error || !data.session) {
+    // Simulação de login simples (sem autenticação real)
+    if (email && password) {
+      const mockUser: User = {
+        id: '1',
+        name: 'Usuário Demo',
+        email: email,
+      };
+      setUser(mockUser);
+      router.push('/catalogo');
+    } else {
       throw new Error('E-mail ou senha incorretos.');
     }
-
-    const { id, user_metadata } = data.user;
-    const name = user_metadata?.name || 'Usuário';
-
-    setUser({ id, name, email: data.user.email });
-    router.push('/catalogo'); // Redirecionar após login
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut();
+  const logout = () => {
     setUser(null);
     router.push('/');
   };
@@ -93,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!isLoading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

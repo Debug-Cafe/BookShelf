@@ -1,11 +1,10 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import BookCard from "./BookCard";
 import AddBookForm from "./AddBookForm";
 import EditBookForm from "./EditBookForm";
 import type { Book } from "@/types";
-import { supabase } from "@/lib/supabaseClient";
 
 type BookListClientProps = {
   initialBooks?: Book[]; // opcional com default
@@ -21,14 +20,16 @@ export default function BookListClient({ initialBooks = [] }: BookListClientProp
   const reloadBooks = async () => {
     setLoading(true);
     setError(null);
-    const { data, error } = await supabase
-      .from("books")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) {
+    try {
+      const response = await fetch('/api/books');
+      const result = await response.json();
+      if (result.success && result.data) {
+        setBooks(result.data);
+      } else {
+        setError("Erro ao carregar livros.");
+      }
+    } catch (err) {
       setError("Erro ao carregar livros.");
-    } else if (data) {
-      setBooks(data);
     }
     setLoading(false);
   };
@@ -46,60 +47,83 @@ export default function BookListClient({ initialBooks = [] }: BookListClientProp
   const handleDelete = async (book: Book) => {
     setLoading(true);
     setError(null);
-    const { error } = await supabase.from("books").delete().eq("id", book.id);
-    if (error) {
-      setError("Erro ao excluir livro.");
-    } else {
-      setBooks(prev => prev.filter(b => b.id !== book.id));
+    try {
+      const response = await fetch(`/api/books/${book.id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        await reloadBooks();
+      } else {
+        setError("Erro ao deletar livro.");
+      }
+    } catch (err) {
+      setError("Erro ao deletar livro.");
     }
     setLoading(false);
   };
 
-  const handleRate = async (book: Book, rating: number) => {
-    setLoading(true);
-    setError(null);
-    const { error } = await supabase.from("books").update({ rating }).eq("id", book.id);
-    if (error) {
-      setError("Erro ao avaliar livro.");
-    } else {
-      setBooks(prev =>
-        prev.map(b => (b.id === book.id ? { ...b, rating } : b))
-      );
-    }
-    setLoading(false);
-  };
-
-  const handleSaveBook = async () => {
+  const handleSave = async () => {
     await reloadBooks();
     setShowAddForm(false);
     setBookBeingEdited(null);
   };
 
-  const handleCancelForm = () => {
+  const handleCancel = () => {
     setShowAddForm(false);
     setBookBeingEdited(null);
   };
 
-  return (
-    <div className="p-4">
-      <button
-        onClick={handleAddClick}
-        className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        disabled={loading}
-      >
-        Adicionar Livro
-      </button>
+  const handleRate = async (book: Book, rating: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/books/${book.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ rating }),
+      });
+      if (response.ok) {
+        setBooks(prev =>
+          prev.map(b => (b.id === book.id ? { ...b, rating } : b))
+        );
+      } else {
+        setError("Erro ao avaliar livro.");
+      }
+    } catch (err) {
+      setError("Erro ao avaliar livro.");
+    }
+    setLoading(false);
+  };
 
+  return (
+    <div className="space-y-6">
       {error && (
-        <p className="mb-4 text-red-600 font-semibold">{error}</p>
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
       )}
+
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Meus Livros</h2>
+        <button
+          onClick={handleAddClick}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={loading}
+        >
+          Adicionar Livro
+        </button>
+      </div>
 
       {loading && (
-        <p className="mb-4 text-gray-600">Carregando...</p>
+        <div className="text-center py-4">
+          <p>Carregando...</p>
+        </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {(books ?? []).map(book => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {books.map((book) => (
           <BookCard
             key={book.id}
             book={book}
@@ -110,15 +134,15 @@ export default function BookListClient({ initialBooks = [] }: BookListClientProp
         ))}
       </div>
 
-      {showAddForm && !bookBeingEdited && (
-        <AddBookForm onSave={handleSaveBook} onCancel={handleCancelForm} />
+      {showAddForm && (
+        <AddBookForm onSave={handleSave} onCancel={handleCancel} />
       )}
 
       {bookBeingEdited && (
         <EditBookForm
           book={bookBeingEdited}
-          onSave={handleSaveBook}
-          onCancel={handleCancelForm}
+          onSave={handleSave}
+          onCancel={handleCancel}
         />
       )}
     </div>

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import type { Book } from "@/types";
-import { supabase } from "@/lib/supabaseClient";
 import {
   BookOpen,
   BookMarked,
@@ -17,8 +16,15 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchBooks = async () => {
-      const { data, error } = await supabase.from("books").select("*");
-      if (!error && data) setBooks(data as Book[]);
+      try {
+        const response = await fetch('/api/books');
+        const result = await response.json();
+        if (result.success && result.data) {
+          setBooks(result.data as Book[]);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar livros:', error);
+      }
     };
     fetchBooks();
   }, []);
