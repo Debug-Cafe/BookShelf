@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '../lib/supabaseClient';
 
 interface RegisterFormProps {
   isDark: boolean;
@@ -96,14 +96,9 @@ export default function RegisterForm({ isDark, onSuccess }: RegisterFormProps) {
     }
   };
 
-  const cardBg = isDark
-    ? "bg-[#3e2723] text-[#f5e6d5]"
-    : "bg-white text-[#3e2723]";
-  const buttonBg = isDark
-    ? "bg-[#c7925c] hover:bg-[#a56734]"
-    : "bg-[#512b1e] hover:bg-[#A56734]";
-  const inputStyle =
-    "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a56734]";
+  const cardBg = isDark ? "bg-[#3e2723] text-[#f5e6d5]" : "bg-white text-[#3e2723]";
+  const buttonBg = isDark ? "bg-[#c7925c] hover:bg-[#a56734]" : "bg-[#512b1e] hover:bg-[#A56734]";
+  const inputStyle = "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a56734]";
 
   return (
     <form
@@ -113,6 +108,10 @@ export default function RegisterForm({ isDark, onSuccess }: RegisterFormProps) {
       <h2 className="text-3xl font-bold mb-6 text-center text-[#6e3b1f]">
         Criar Conta
       </h2>
+
+      <p className="text-center mb-6 text-xl font-medium">
+        Bem-vindo! Crie sua conta para começar.
+      </p>
 
       {error && (
         <p className="text-red-600 text-sm mb-4 bg-red-100 p-2 rounded">
@@ -143,7 +142,7 @@ export default function RegisterForm({ isDark, onSuccess }: RegisterFormProps) {
 
       <div className="mb-4">
         <label htmlFor="email" className="block text-sm font-medium mb-1">
-          Email
+          E-mail
         </label>
         <input
           type="email"
@@ -199,7 +198,7 @@ export default function RegisterForm({ isDark, onSuccess }: RegisterFormProps) {
         {isLoading ? "Cadastrando..." : "Cadastre-se"}
       </button>
 
-      <p className="mt-4 text-center text-sm text-[#6e3b1f]">
+      <p className="mt-4 text-center text-sm text-[#3e2723]">
         Já tem uma conta?{" "}
         <Link href="/" className="font-bold underline hover:text-[#c7925c]">
           Faça Login
