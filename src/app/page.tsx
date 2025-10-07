@@ -1,6 +1,9 @@
 'use client';
 
-import { BookOpen } from "lucide-react";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { BookOpen } from 'lucide-react';
 import LoginForm from '@/components/LoginForm';
 
 interface HomePageProps {
@@ -8,10 +11,21 @@ interface HomePageProps {
 }
 
 export default function HomePage({ theme }: HomePageProps) {
-  
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/catalogo'); // redireciona automaticamente se já logado
+    }
+  }, [isAuthenticated, router]);
+
   const isDark = theme === 'dark';
   const leftBg = isDark ? "bg-[var(--background)] text-[var(--foreground)]" : "bg-[#d7a86e] text-[#3e2723]";
   const rightBg = isDark ? "bg-[#512b1e] text-[var(--foreground)]" : "bg-[#d7a86e] text-[#ffffff]";
+
+  // Se estiver logado, não renderiza o form (ou pode mostrar um loader, se quiser)
+  if (isAuthenticated) return null;
 
   return (
     <div className="flex h-full w-full"> 

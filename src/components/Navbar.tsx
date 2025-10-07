@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { BookOpen, Search, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { supabase } from '@/lib/supabaseClient'; // Import do Supabase
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -22,9 +23,9 @@ export default function Navbar() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-
   const isAuthPage = pathname === "/" || pathname === "/cadastro";
   const isCatalogPage = pathname === "/catalogo";
+
   if (isAuthPage) {
     return (
       <nav className="w-full bg-[var(--background)] text-[var(--foreground)] relative">
@@ -80,6 +81,15 @@ export default function Navbar() {
         {/* BOTÕES À DIREITA */}
         <div className="flex items-center gap-3 flex-shrink-0 ml-4">
           <ThemeToggle />
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              window.location.href = "/"; // redireciona para página inicial/login
+            }}
+            className="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold py-1.5 px-3 rounded"
+          >
+            Sair
+          </button>
         </div>
       </div>
 

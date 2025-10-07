@@ -62,13 +62,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     setUser(data.user);
     setIsLoading(false);
-    router.push('/catalogo');
+    router.replace('/catalogo'); // trocar push por replace para navegação mais suave
   };
 
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    router.push('/');
+    router.replace('/'); // mesma troca aqui
   };
 
   return (
