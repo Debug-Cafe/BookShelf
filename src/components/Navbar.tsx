@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { BookOpen, Search, LogOut, Menu } from 'lucide-react';
+import { BookOpen, Search, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { isAuthenticated, logout, isLoading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
   const [isSmallLogo, setIsSmallLogo] = useState(false);
@@ -24,16 +22,9 @@ export default function Navbar() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Espera o estado de autenticação carregar
-  if (isLoading) return null;
 
   const isAuthPage = pathname === "/" || pathname === "/cadastro";
   const isCatalogPage = pathname === "/catalogo";
-
-  const handleLogout = async () => {
-    await logout(); // logout já redireciona para "/"
-  };
-
   if (isAuthPage) {
     return (
       <nav className="w-full bg-[var(--background)] text-[var(--foreground)] relative">
@@ -62,11 +53,7 @@ export default function Navbar() {
           {!menuOpen && (
             <div className="hidden sm:flex flex-1 justify-center items-center gap-6">
               <Link href="/catalogo" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Catálogo</Link>
-              <Link href="/Dashboard" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Dashboard</Link>
-              <Link href="/novidades" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Novidades</Link>
-              {isAuthenticated && (
-                <Link href="/perfil" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Perfil</Link>
-              )}
+              <Link href="/dashboard" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Dashboard</Link>
             </div>
           )}
 
@@ -92,27 +79,15 @@ export default function Navbar() {
 
         {/* BOTÕES À DIREITA */}
         <div className="flex items-center gap-3 flex-shrink-0 ml-4">
-          {isAuthenticated && (
-            <button
-              onClick={handleLogout}
-              className="w-10 h-10 flex items-center justify-center rounded-lg bg-[var(--form-background)] hover:opacity-80 transition"
-              aria-label="Sair da conta"
-            >
-              <LogOut size={20} />
-            </button>
-          )}
           <ThemeToggle />
         </div>
       </div>
 
+      {/* Menu mobile */}
       {menuOpen && (
         <div className="sm:hidden flex flex-col bg-[var(--card-background)] border-t border-gray-200 px-4 py-2 gap-3">
           <Link href="/catalogo" className="hover:text-[var(--primary)]">Catálogo</Link>
           <Link href="/dashboard" className="hover:text-[var(--primary)]">Dashboard</Link>
-          <Link href="/novidades" className="hover:text-[var(--primary)]">Novidades</Link>
-          {isAuthenticated && (
-            <Link href="/perfil" className="hover:text-[var(--primary)]">Perfil</Link>
-          )}
         </div>
       )}
     </nav>

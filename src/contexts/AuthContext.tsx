@@ -1,20 +1,13 @@
-
-
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: User | null;
+  user: SupabaseUser | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -23,27 +16,19 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const setup = async () => {
+      setIsLoading(true);
+
       const { data } = await supabase.auth.getSession();
       const session = data?.session;
 
       if (session?.user) {
-        const { id, email, user_metadata } = session.user;
-
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('name')
-          .eq('id', id)
-          .single();
-
-        const name = profileData?.name || user_metadata?.name || 'Usuário';
-        // CORRIGIDO 1/3: Garante que o email seja string
-        setUser({ id, name, email: email ?? "" }); 
+        setUser(session.user);
       } else {
         setUser(null);
       }
@@ -53,19 +38,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     setup();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        const { id, email, user_metadata } = session.user;
-
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('name')
-          .eq('id', id)
-          .single();
-
-        const name = profileData?.name || user_metadata?.name || 'Usuário';
-        // CORRIGIDO 2/3: Garante que o email seja string
-        setUser({ id, name, email: email ?? "" }); 
+        setUser(session.user);
       } else {
         setUser(null);
       }
@@ -77,21 +52,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
+    setIsLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
     if (error || !data.session) {
+      setIsLoading(false);
       throw new Error('E-mail ou senha incorretos.');
     }
 
-    const { id, user_metadata } = data.user;
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('name')
-      .eq('id', id)
-      .single();
-
-    const name = profileData?.name || user_metadata?.name || 'Usuário';
-    // CORRIGIDO 3/3: Garante que o email seja string
-    setUser({ id, name, email: email ?? "" }); 
+    setUser(data.user);
+    setIsLoading(false);
     router.push('/catalogo');
   };
 
