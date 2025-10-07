@@ -1,3 +1,5 @@
+
+
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -40,7 +42,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .single();
 
         const name = profileData?.name || user_metadata?.name || 'Usuário';
-        setUser({ id, name, email });
+        // CORRIGIDO 1/3: Garante que o email seja string
+        setUser({ id, name, email: email ?? "" }); 
       } else {
         setUser(null);
       }
@@ -61,7 +64,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .single();
 
         const name = profileData?.name || user_metadata?.name || 'Usuário';
-        setUser({ id, name, email });
+        // CORRIGIDO 2/3: Garante que o email seja string
+        setUser({ id, name, email: email ?? "" }); 
       } else {
         setUser(null);
       }
@@ -86,7 +90,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .single();
 
     const name = profileData?.name || user_metadata?.name || 'Usuário';
-    setUser({ id, name, email });
+    // CORRIGIDO 3/3: Garante que o email seja string
+    setUser({ id, name, email: email ?? "" }); 
     router.push('/catalogo');
   };
 

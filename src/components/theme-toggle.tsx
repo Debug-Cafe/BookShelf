@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Moon, Sun, Monitor } from 'lucide-react';
-import { useTheme } from '@/providers/ThemeProvider';
+import { useTheme } from 'next-themes';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -12,14 +12,29 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-export function ThemeToggle() {
-  const { setTheme } = useTheme();
+// CORRIGIDO: Definição do tipo Theme para resolver o erro de tipagem
+type Theme = 'light' | 'dark' | 'system';
 
-  const options = [
-    { value: 'light', label: 'Claro', icon: <Sun size={24} className="mr-2" /> },
-    { value: 'dark', label: 'Escuro', icon: <Moon size={24} className="mr-2" /> },
-    { value: 'system', label: 'Sistema', icon: <Monitor size={24} className="mr-2" /> },
-  ];
+const options = [
+  {
+    value: 'light',
+    label: 'Claro',
+    icon: <Sun className="mr-2 h-4 w-4" />,
+  },
+  {
+    value: 'dark',
+    label: 'Escuro',
+    icon: <Moon className="mr-2 h-4 w-4" />,
+  },
+  {
+    value: 'system',
+    label: 'Sistema',
+    icon: <Monitor className="mr-2 h-4 w-4" />,
+  },
+];
+
+export function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -33,7 +48,11 @@ export function ThemeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="center" className="mt-2">
         {options.map((opt) => (
-          <DropdownMenuItem key={opt.value} onClick={() => setTheme(opt.value)}>
+          <DropdownMenuItem
+            key={opt.value}
+            // CORRIGIDO: Adicionado 'as Theme' para resolver o erro de tipagem
+            onClick={() => setTheme(opt.value as Theme)} 
+          >
             {opt.icon}
             <span className="text-lg">{opt.label}</span>
           </DropdownMenuItem>

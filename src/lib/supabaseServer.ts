@@ -1,10 +1,15 @@
+// ===================================================
+// ARQUIVO: src/lib/supabaseServer.ts
+// ===================================================
+
 // lib/supabaseServer.ts
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { headers, cookies } from "next/headers";
+// CORRIGIDO: Importar apenas cookies, remover headers
+import { cookies } from "next/headers"; 
 
 export function createServerSupabaseClient() {
   return createServerComponentClient({
     cookies,
-    headers,
+    // A propriedade 'headers' foi removida pois não é mais aceita
   });
 }

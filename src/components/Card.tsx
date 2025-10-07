@@ -6,7 +6,7 @@ export default function Card({ title, author, cover }: Book): React.JSX.Element 
   return (
     <div className="card-container">
       <img
-        src={cover}
+        src={cover ?? ""}
         alt={`Capa do livro ${title}`}
         className="book-cover"
       />

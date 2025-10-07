@@ -4,10 +4,10 @@ import BookListClient from "./BookListClient";
 import type { Book } from "@/types";
 import { cookies } from "next/headers";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import type { Database } from "@/types/supabase"; // Se tiver types gerados pelo Supabase
+
 
 export default async function BookList() {
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const supabase = createServerComponentClient({ cookies });
 
   const {
     data: { user },

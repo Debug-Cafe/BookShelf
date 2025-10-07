@@ -4,8 +4,9 @@ import { useState } from "react";
 import BookCard from "./BookCard";
 import AddBookForm from "./AddBookForm";
 import EditBookForm from "./EditBookForm";
-import type { Book } from "@/types";
+import type { Book, ReadingStatus } from "@/types";
 import { supabase } from "@/lib/supabaseClient";
+
 
 type BookListClientProps = {
   initialBooks?: Book[];
@@ -42,7 +43,7 @@ export default function BookListClient({ initialBooks = [] }: BookListClientProp
     if (error) {
       setError("Erro ao carregar livros.");
     } else if (data) {
-      setBooks(data);
+      setBooks(data as Book[]);
     }
 
     setLoading(false);
@@ -93,6 +94,27 @@ export default function BookListClient({ initialBooks = [] }: BookListClientProp
     setLoading(false);
   };
 
+  // NOVO: Função para atualizar o status
+  const handleStatusUpdate = async (book: Book, newStatus: string) => {
+    setLoading(true);
+    setError(null);
+
+    const { error } = await supabase
+      .from("books")
+      .update({ status: newStatus })
+      .eq("id", book.id);
+
+    if (error) {
+      setError("Erro ao atualizar status.");
+    } else {
+      setBooks(prev =>
+        prev.map(b => (b.id === book.id ? { ...b, status: newStatus as ReadingStatus } : b))
+      );
+    }
+
+    setLoading(false);
+  };
+
   const handleSaveBook = async () => {
     await reloadBooks();
     setShowAddForm(false);
@@ -126,9 +148,9 @@ export default function BookListClient({ initialBooks = [] }: BookListClientProp
             book={book}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onRate={handleRate} onStatusUpdate={function (book: Book, newStatus: string): void {
-              throw new Error("Function not implemented.");
-            } }            
+            onRate={handleRate}
+            // CORRIGIDO: Chamada correta para onStatusUpdate
+            onStatusUpdate={(newStatus) => handleStatusUpdate(book, newStatus)} 
           />
         ))}
       </div>
