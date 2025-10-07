@@ -62,7 +62,7 @@ export default function Navbar() {
           {!menuOpen && (
             <div className="hidden sm:flex flex-1 justify-center items-center gap-6">
               <Link href="/catalogo" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Catálogo</Link>
-              <Link href="/dashboard" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Dashboard</Link>
+              <Link href="/Dashboard" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Dashboard</Link>
               <Link href="/novidades" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Novidades</Link>
               {isAuthenticated && (
                 <Link href="/perfil" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Perfil</Link>
