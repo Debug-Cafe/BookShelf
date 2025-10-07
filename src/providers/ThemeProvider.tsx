@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   createContext,
@@ -15,7 +15,7 @@ type ThemeContextType = {
   setTheme: (theme: Theme) => void;
 };
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "system";
@@ -36,22 +36,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("theme", newTheme);
   };
 
-  // aplica classe no <html>
   useEffect(() => {
     const root = document.documentElement;
     root.classList.remove("light", "dark");
 
     if (theme === "system") {
-      const systemIsDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
+      const systemIsDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       root.classList.add(systemIsDark ? "dark" : "light");
     } else {
       root.classList.add(theme);
     }
   }, [theme]);
 
-  // escuta alterações no sistema (ex: trocar tema no SO)
   useEffect(() => {
     if (theme !== "system") return;
 

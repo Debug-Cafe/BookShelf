@@ -2,16 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import RegisterForm from '@/components/RegisterForm'; 
+import RegisterForm from '@/components/RegisterForm';
 import { CheckCircle } from 'lucide-react';
+import { useTheme } from '@/providers/ThemeProvider';
 
-interface CadastroPageProps {
-  theme?: 'dark' | 'light';
-}
-
-export default function CadastroPage({ theme = 'light' }: CadastroPageProps) {
+export default function CadastroPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
+  const { theme } = useTheme();
   const isDark = theme === 'dark';
 
   const handleSuccess = () => {
