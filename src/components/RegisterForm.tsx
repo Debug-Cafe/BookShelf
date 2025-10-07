@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabaseClient';
 
 
 interface RegisterFormProps {
-  isDark?: boolean;
+  isDark: boolean;
   onSuccess: () => void;
 }
 
@@ -25,7 +25,7 @@ const registerSchema = z.object({
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-export default function RegisterForm({ isDark, onSuccess }: RegisterFormProps) {
+export default function RegisterForm({ isDark = false, onSuccess }: RegisterFormProps) {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
