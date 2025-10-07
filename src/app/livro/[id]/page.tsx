@@ -1,6 +1,7 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import { Book } from "@/types";
+import Image from "next/image";
+
 import { notFound } from "next/navigation";
 
 export default async function LivroPage({ params }: { params: { id: string } }) {
@@ -20,7 +21,7 @@ export default async function LivroPage({ params }: { params: { id: string } }) 
     <div className="p-8 max-w-4xl mx-auto">
       <div className="flex flex-col md:flex-row gap-8">
         <div className="md:w-1/3">
-          <img
+          <Image
             src={book.cover || book.imageurl || "/placeholder.jpg"} // CORRIGIDO: imageUrl -> imageurl
             alt={`Capa do livro ${book.title}`}
             className="w-full h-auto rounded shadow-md"

@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "type": "chrome",
+            "name": "http://[build]  command = \"npm run build\"  publish = \".next\"[[plugins]]  package = \"@netlify/plugin-nextjs\"",
+            "request": "launch",
+            "url": "http://[build]  command = \"npm run build\"  publish = \".next\"[[plugins]]  package = \"@netlify/plugin-nextjs\""
+        }
+    ]
+}

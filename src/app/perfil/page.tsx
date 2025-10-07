@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
+import Image from 'next/image';
 
 export default function PerfilPage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [avatar, setAvatar] = useState<string | null>(null);
-  const router = useRouter();
+ 
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -67,7 +67,7 @@ export default function PerfilPage() {
             {/* Avatar */}
             <div className="shrink-0">
               {avatar ? (
-                <img
+                <Image
                   src={avatar}
                   alt="Avatar"
                   className="w-32 h-32 rounded-full object-cover border-4 border-[var(--divider-color)]"

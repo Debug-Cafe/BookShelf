@@ -91,7 +91,7 @@ export default function CatalogoPage() {
 
   // Atualiza o rating do livro
   const handleRateBook = async (book: Book, newRating: number) => {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('books')
       .update({ rating: newRating })
       .eq('id', book.id)
