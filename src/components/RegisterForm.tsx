@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabaseClient';
 
 
 interface RegisterFormProps {
-  isDark: boolean;
+  isDark?: boolean;
   onSuccess: () => void;
 }
 
