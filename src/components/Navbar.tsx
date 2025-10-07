@@ -53,7 +53,7 @@ export default function Navbar() {
           {!menuOpen && (
             <div className="hidden sm:flex flex-1 justify-center items-center gap-6">
               <Link href="/catalogo" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Catálogo</Link>
-              <Link href="/dashboard" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Dashboard</Link>
+              <Link href="/Dashboard" className="text-base xl:text-lg font-medium hover:text-[var(--primary)] transition">Dashboard</Link>
             </div>
           )}
 
@@ -87,7 +87,7 @@ export default function Navbar() {
       {menuOpen && (
         <div className="sm:hidden flex flex-col bg-[var(--card-background)] border-t border-gray-200 px-4 py-2 gap-3">
           <Link href="/catalogo" className="hover:text-[var(--primary)]">Catálogo</Link>
-          <Link href="/dashboard" className="hover:text-[var(--primary)]">Dashboard</Link>
+          <Link href="/Dashboard" className="hover:text-[var(--primary)]">Dashboard</Link>
         </div>
       )}
     </nav>
