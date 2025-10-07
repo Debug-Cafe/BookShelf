@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev --no-turbopack",
+    "build": "next build",
     "migrate": "dotenv -e .env.local -- npx prisma migrate dev",
     "migrate:name": "dotenv -e .env.local -- npx prisma migrate dev --name add_reading_status_enum",
     "db:push": "dotenv -e .env.local -- npx prisma db push",
